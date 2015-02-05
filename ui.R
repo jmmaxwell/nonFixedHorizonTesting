@@ -1,30 +1,26 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
-
 library(shiny)
+library(shinydashboard)
 
-shinyUI(fluidPage(
 
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
-
-  # Sidebar with a slider input for number of bins
-  sidebarLayout(
-    sidebarPanel(
-      sliderInput("bins",
-                  "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
-    ),
-
-    # Show a plot of the generated distribution
-    mainPanel(
-      plotOutput("distPlot")
+ui <- dashboardPage(
+  dashboardHeader(title = "Basic dashboard"),
+  dashboardSidebar(disable = TRUE),
+  dashboardBody(
+    # Boxes need to be put in a row (or column)
+    fluidRow(
+      
+      box(
+        title = "Test Inputs",
+        numericInput("tao", label = h3("Effect Prior's Variance"), value = 1),
+        numericInput("test.sample.size", label = h3("Number of Test Group Observations"), value = 100),
+        numericInput("control.sample.size", label = h3("Number of Control Group Observations"), value = 100),
+        numericInput("test.conversions", label = h3("Number of Test Group Conversions"), value = 10),
+        numericInput("control.conversions", label = h3("Number of Control Group Conversions"), value = 10)
+      ),
+      
+      box(
+        tableOutput("values")
+        )
     )
   )
-))
+)
