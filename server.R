@@ -26,7 +26,7 @@ server <- function(input, output) {
   
   pValueCalculator = reactive({ 
     
-    distance.finder = function(alpha, Tao, VarianceN){
+    distance.finder = function(alpha, Tao, VarianceN, sampleMeanControl, sampleMeanTest){
       decisionBound = sqrt( 
         (2 * log(1/alpha) - 
            log( VarianceN/(VarianceN + Tao) )) * 
@@ -38,20 +38,28 @@ server <- function(input, output) {
       return(distanceFromBound)
     }
     
-    vals = seq(.01, 1, .01)
+    vals = seq(.0001, 1, .0001)
 
-    alpha.results = data.frame(pvalue = vals, distance = sapply(vals, distance.finder, VarianceN = effect.variance(), Tao = tao()))
+    alpha.results = data.frame(pvalue = vals, distance = sapply(vals, distance.finder, 
+                                                                VarianceN = effect.variance(), 
+                                                                Tao = tao(),
+                                                                sampleMeanControl = sample.mean.control(),
+                                                                sampleMeanTest = sample.mean.test()))
     
-    p.value = alpha.results %>%
-      filter(distance > 0) %>%
-      summarise(min(pvalue))
+    results.over.threshold = alpha.results %>%
+      filter(distance > 0)
     
-    p.value
+    if (nrow(results.over.threshold) == 0){
+      p.value = "Never Crossed Threshold"
+    } else {
+      p.value = results.over.threshold %>%
+        summarise(min(pvalue))
+    }
+    
+    unlist(p.value)
+
   })
   
- output$values = renderTable({pValueCalculator()})
+ output$pvalue <- renderText({ pValueCalculator() })
 
 }
-    
-
-
